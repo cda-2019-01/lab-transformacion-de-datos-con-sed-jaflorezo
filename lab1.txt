@@ -1,0 +1,152 @@
+
+Preparación:
+
+sed 's/a/A/' data.csv > out.1
+
+sed 's/c/C/' out.1 > out.2
+
+sed 's/n/N/' out.2 > out.3
+
+
+Punto 1:
+
+sed 's/\([0-9][0-9]\)\/\([0-9][0-9]\)\/\([0-9][0-9]\)/20\3-\2-\1/' out.3 > out.4
+sed 's/\([0-9]\)\/\([0-9]\)\/\([0-9][0-9][0-9][0-9]\)/\3-0\2-0\1/' out.4 > out.5
+
+
+
+Punto 2:
+
+sed 's/;;/;\\N;/' out.5 > out.6
+
+sed 's/;\r/;\\N/' out.6 > out.7
+
+sed 's/;N/;\\N/' out.7 > out.8
+
+
+
+Punto 4:
+
+sed 's/,/./g' out.8 > out.9
+
+
+
+Punto 3:
+
+sed 's/;/,/g' out.9 > out.10
+
+
+
+
+
+
+
+
+for n in ${mes[*]}; do
+    awk -F',' '{ sum += $4 } END { print(sum / NR) }' estacion1-$n.csv
+    awk '/-$n-/ {print}' estacion1-6.csv > estacion1-$n.csv
+done
+
+
+
+LABORATORIO 2:
+
+for file in *.csv; do sed -n '1p' "$file" > Encabezado1; done    		#Guarda la línea del encabezado en un archivo
+sed 's/^/ESTACION;/' Encabezado1 > Encabezado2					#Agrega el nombre de columna ESTACION
+x=$(sed -n '1p' Encabezado2)							#Guarda el encabezado en la variable x
+
+for file in *.csv; do sed "1d" "$file" > out."$file"; done    			#Elimina la primera fila de los archivos
+
+for file in out.*.csv; do sed 's/^/'"$file"';/' "$file" > out."$file"; done   	#Agregar columna con nombre de archivo
+
+for file in out.out.*.csv; do cat "$file"; done > out1    			#Une los archivos
+
+sed "1i\'"$x"'" out1 > out2							#Agrega el encabezado
+
+sed 's/out.\([a-zA-Z]*\)\([0-9]\).csv/\1\2/' out2 > out3			#Arregla el nombre de toda la columna ESTACION
+
+sed 's/,/./' out3 > out4							#Indica los decimales con punto
+
+sed 's/;/,/g' out4 > out5							#Separa las columnas por coma
+
+sed 's/\/\([0-9][0-9]\)\/\([0-9][0-9]\),/\/\1\/\2,\2,\1,/' out5 > out6		#Extrae el año y el mes
+
+sed 's/,\([0-9][0-9]\):/,\1,\1:/' out6 > out7					#Extrae la hora
+
+sed 's/?FECHA,HHMMSS/FECHA,ANO,MES,HORA,HHMMSS/' out7 > out8			#Completa el encabezado
+
+
+
+
+
+
+
+
+for file in *.csv; do sed 's/^/'"$file"';/' "$file" > out."$file"; done		#Agregar nombre estación
+
+for file in out*.csv; do cat "$file"; done > out1					#Concatenar
+
+mv out1 out1.csv								#Cambio de nombre
+
+sed 's/;;/;NULL;/' out1.csv > out2.csv						#Llenar vacíos
+sed 's/^;/NULL;/' out2.csv > out3.csv
+sed 's/;$/;NULL/' out3.csv > out4.csv
+
+sed 's/;¡»¿FECHA;HHMMSS;DIR;VEL/;/' out4.csv > out5.csv				#Quitar encabezados
+sed 's/^¡»¿FECHA;HHMMSS;DIR;VEL/;;;;/' out5.csv > out6.csv
+
+sed 's/;FECHA;HHMMSS;DIR;VEL/;/' out6.csv > out7.csv
+sed 's/^FECHA;HHMMSS;DIR;VEL/;;;;/' out7.csv > out8.csv
+
+sed '/;;/d' out4.csv > out5.csv							#Quitar vacíos
+
+sed 's/NULL//' out5.csv > out6.csv						#Limpiar NULL
+
+
+
+
+
+
+
+
+
+sed 's/a/A/' data.csv | sed 's/c/C/' | sed 's/,0$//' | sed 's/\([0-9][0-9]\)\/\([0-9][0-9]\)\/\([0-9][0-9]\)/20\3-\2-\1/' | sed 's/;;/;\\N;/' | sed 's/;$/;\\N/' | sed 's/;N/;\\N/' | sed 's/,/./g' | sed 's/;/,/g' | sed '/\\N/d'
+
+
+
+#!/bin/bash
+
+sed 's/a/A/' data.csv > out.1
+
+sed 's/c/C/' out.1 > out.2
+
+sed 's/n/N/' out.2 > out.3
+
+sed 's/\([0-9][0-9]\)\/\([0-9][0-9]\)\/\([0-9][0-9]\)/20\3-\2-\1/' out.3 > out.4
+
+sed 's/\([0-9]\)\/\([0-9]\)\/\([0-9][0-9][0-9][0-9]\)/\3-0\2-0\1/' out.4 > out.5
+
+sed 's/;;/;\\N;/' out.5 > out.6
+
+sed 's/;\r/;\\N/' out.6 > out.7
+
+sed 's/;N/;\\N/' out.7 > out.8
+
+sed 's/,/./g' out.8 > out.9
+
+sed 's/;/,/g' out.9 > out.10
+
+#sed 's/100.4/100.4\n/' out.11 > out.12
+
+sed 's/2013-08-02/2014-08-02/' out.12 > out.13
+
+cp out.13 Resultado
+
+rm out*
+
+exit
+
+
+
+
+for file in data*.csv; do for line in "$file"; do sed 's/^\([a-zA-Z]\)/'"$file"','"$line"',\1

@@ -1,0 +1,2 @@
+# Escriba su código aquí
+#!/bin/bashsed 's/a/A/' data.csv > out.1
